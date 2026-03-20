@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BG Remover Tool</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f4f4f4;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      margin: 50px auto;
+      width: 300px;
+      border-radius: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      cursor: pointer;
+    }
+    img {
+      max-width: 100%;
+      margin-top: 10px;
+    }
+    .ad {
+      margin: 20px;
+      padding: 20px;
+      border: 2px dashed gray;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>BG Remover Tool</h1>
+
+<div class="ad">Ad Space</div>
+
+<div class="box">
+  <input type="file" id="fileInput"><br>
+  <button onclick="removeBG()">Remove Background</button>
+
+  <img id="preview">
+
+  <button onclick="downloadImage()">Download</button>
+</div>
+
+<div class="footer">
+  <p>Your image is safe. We do not store files.</p>
+  <p>By using this site, you agree to Terms & Privacy.</p>
+</div>
+
+<script>
+let resultBlob;
+
+function removeBG() {
+  const file = document.getElementById('fileInput').files[0];
+  if (!file) {
+    alert("Upload image first");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  fetch('/remove', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.blob())
+  .then(blob => {
+    resultBlob = blob;
+    const url = URL.createObjectURL(blob);
+    document.getElementById('preview').src = url;
+  });
+}
+
+function downloadImage() {
+  if (!resultBlob) return;
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(resultBlob);
+  a.download = "removed.png";
+  a.click();
+
+  // Auto refresh after download
+  setTimeout(() => {
+    location.reload();
+  }, 1000);
+}
+</script>
+
+</body>
+  </html>
