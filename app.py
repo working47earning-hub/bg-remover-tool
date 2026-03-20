@@ -2,35 +2,26 @@ from flask import Flask, request, send_file
 from rembg import remove
 from PIL import Image
 import io
+import os
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def home():
-    return "BG Remover Backend Live!"
+    return "BG Remover Running"
 
 @app.route('/remove', methods=['POST'])
 def remove_bg():
-    if 'file' not in request.files:
-        return "No file uploaded", 400
-
     file = request.files['file']
-    
-    # Open image
     input_img = Image.open(file.stream).convert("RGBA")
-
-    # Remove background
     output_img = remove(input_img)
 
-    # Save in memory (no storage)
     byte_io = io.BytesIO()
     output_img.save(byte_io, format='PNG')
     byte_io.seek(0)
 
     return send_file(byte_io, mimetype='image/png')
 
-import os
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)
